@@ -92,6 +92,35 @@ fi
 fi
 
 echo "Building SimplePlatformer..."
-dotnet restore
-dotnet build --configuration Release
+
+# Check if packages need restoration
+NEED_RESTORE=false
+
+# Check if packages are already restored
+if [[ ! -f "obj/project.assets.json" ]]; then
+    NEED_RESTORE=true
+fi
+
+# Check if project file is newer than last restore
+if [[ -f "obj/project.assets.json" && "SimplePlatformer.csproj" -nt "obj/project.assets.json" ]]; then
+    NEED_RESTORE=true
+fi
+
+if [[ "$NEED_RESTORE" == "true" ]]; then
+    echo "Restoring packages..."
+    dotnet restore
+    if [[ $? -ne 0 ]]; then
+        echo "Package restoration failed!"
+        exit 1
+    fi
+else
+    echo "Packages already restored, skipping..."
+fi
+
+echo "Building project..."
+dotnet build --configuration Release --no-restore
+if [[ $? -ne 0 ]]; then
+    echo "Build failed!"
+    exit 1
+fi
 echo "Build complete!"

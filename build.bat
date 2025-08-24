@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 
 REM Check if build already exists - if so, SDK must be installed
 if exist "bin\Release\net6.0\SimplePlatformer.dll" (
@@ -53,6 +54,36 @@ echo Compatible .NET SDK found!
 
 :build_project
 echo Building SimplePlatformer...
-dotnet restore
-dotnet build --configuration Release
+
+REM Check if packages need restoration
+set NEED_RESTORE=0
+
+REM Check if packages folder exists and has content
+if not exist "obj\project.assets.json" set NEED_RESTORE=1
+
+REM Check if project file is newer than last restore
+if exist "obj\project.assets.json" (
+    for %%i in (SimplePlatformer.csproj) do set PROJ_TIME=%%~ti
+    for %%i in (obj\project.assets.json) do set ASSETS_TIME=%%~ti
+    REM Simple string comparison - if project file appears newer, restore
+    if "!PROJ_TIME!" gtr "!ASSETS_TIME!" set NEED_RESTORE=1
+)
+
+if %NEED_RESTORE%==1 (
+    echo Restoring packages...
+    dotnet restore
+    if %ERRORLEVEL% neq 0 (
+        echo Package restoration failed!
+        exit /b %ERRORLEVEL%
+    )
+) else (
+    echo Packages already restored, skipping...
+)
+
+echo Building project...
+dotnet build --configuration Release --no-restore
+if %ERRORLEVEL% neq 0 (
+    echo Build failed!
+    exit /b %ERRORLEVEL%
+)
 echo Build complete!
