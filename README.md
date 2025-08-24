@@ -60,7 +60,7 @@ All commands work the same across platforms:
 - **Windows**: `publish.bat` (calls `build.bat`, then creates single-file executable)
 - **Mac/Linux**: `./publish.sh` (calls `./build.sh`, then creates single-file executable)
 
-The publish command creates a **single executable file** (~64MB) in the `dist` folder, plus the required native libraries (SDL2.dll, soft_oal.dll) that MonoGame needs for graphics and audio.
+The publish command creates **3 files** in the `dist` folder: your game executable (~64MB) plus 2 required native libraries that MonoGame needs for graphics and audio.
 
 ### Clean (Remove Build Artifacts)
 - **Windows**: `clean.bat` (removes `bin`, `obj`, `dist`, and `dist-framework` directories)
