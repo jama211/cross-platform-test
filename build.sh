@@ -1,5 +1,15 @@
 #!/bin/bash
-echo "Checking for .NET SDK..."
+
+# Check if build already exists - if so, SDK must be installed
+if [[ -f "bin/Release/net6.0/SimplePlatformer.dll" ]]; then
+    echo "Build exists, skipping SDK check..."
+    goto_build_project=true
+else
+    goto_build_project=false
+fi
+
+if [[ "$goto_build_project" == "false" ]]; then
+    echo "Checking for .NET SDK..."
 
 # Make sure dotnet is in PATH if it exists in ~/.dotnet (common on macOS)
 if [[ "$OSTYPE" == "darwin"* ]] && [[ -d "$HOME/.dotnet" ]] && ! command -v dotnet &> /dev/null; then
@@ -78,6 +88,7 @@ elif ! dotnet --list-sdks | grep -E "^[6-9]\." &> /dev/null; then
     echo ".NET SDK installed successfully!"
 else
     echo "Compatible .NET SDK found!"
+fi
 fi
 
 echo "Building SimplePlatformer..."

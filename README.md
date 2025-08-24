@@ -8,6 +8,7 @@ A minimal cross-platform 2D platformer game built with MonoGame and C#.
 - Console-ready architecture for future porting
 - Minimal codebase (only 2 main C# files)
 - Small executable size
+- Smart build optimization (skips SDK checks on subsequent builds)
 - Simple platformer mechanics:
   - Player movement (arrow keys, WASD)
   - Jumping (spacebar, up arrow, W)
@@ -48,6 +49,7 @@ All commands work the same across platforms:
 ### Build Only
 - **Windows**: `build.bat` (checks/installs .NET 6+ SDK automatically, then builds)
 - **Mac/Linux**: `./build.sh` (checks/installs .NET 6+ SDK automatically, then builds)
+- **Optimization**: Skips SDK check if build already exists (faster subsequent builds)
 
 ### Build & Run (One-Click)
 - **Windows**: `run.bat` (calls `build.bat`, then runs the game)
@@ -55,10 +57,15 @@ All commands work the same across platforms:
 - **Perfect for**: Double-click to play! Handles everything automatically.
 
 ### Publish (Release Build)
-- **Windows**: `publish.bat` (calls `build.bat`, then creates self-contained executable)
-- **Mac/Linux**: `./publish.sh` (calls `./build.sh`, then creates self-contained executable)
+- **Windows**: `publish.bat` (calls `build.bat`, then creates single-file executable)
+- **Mac/Linux**: `./publish.sh` (calls `./build.sh`, then creates single-file executable)
 
-The publish command creates a self-contained executable in the `dist` folder.
+The publish command creates a **single executable file** (~64MB) in the `dist` folder, plus the required native libraries (SDL2.dll, soft_oal.dll) that MonoGame needs for graphics and audio.
+
+### Clean (Remove Build Artifacts)
+- **Windows**: `clean.bat` (removes `bin`, `obj`, `dist`, and `dist-framework` directories)
+- **Mac/Linux**: `./clean.sh` (removes `bin`, `obj`, `dist`, and `dist-framework` directories)
+- **Perfect for**: Fresh builds, fixing build issues, or cleaning up before commits
 
 ## Controls
 
@@ -99,6 +106,7 @@ SimplePlatformer/
 ├── build.bat/.sh         # Build only (handles SDK installation)
 ├── run.bat/.sh           # Build + Run (calls build, then runs)
 ├── publish.bat/.sh       # Build + Publish (calls build, then publishes)
+├── clean.bat/.sh         # Clean (removes all build artifacts)
 └── README.md             # This file
 ```
 
@@ -106,3 +114,4 @@ SimplePlatformer/
 - **`build`**: Core script (SDK detection/install + build)
 - **`run`**: Calls `build` → runs game
 - **`publish`**: Calls `build` → creates release
+- **`clean`**: Removes all build artifacts (forces fresh build next time)

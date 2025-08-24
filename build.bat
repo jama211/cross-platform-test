@@ -1,4 +1,11 @@
 @echo off
+
+REM Check if build already exists - if so, SDK must be installed
+if exist "bin\Release\net6.0\SimplePlatformer.dll" (
+    echo Build exists, skipping SDK check...
+    goto build_project
+)
+
 echo Checking for .NET SDK...
 
 REM Check if dotnet is installed
@@ -44,6 +51,7 @@ if exist "%TEMP%\dotnet-sdk-installer.exe" (
 :sdk_found
 echo Compatible .NET SDK found!
 
+:build_project
 echo Building SimplePlatformer...
 dotnet restore
 dotnet build --configuration Release
