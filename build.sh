@@ -1,6 +1,11 @@
 #!/bin/bash
 echo "Checking for .NET SDK..."
 
+# Make sure dotnet is in PATH if it exists in ~/.dotnet (common on macOS)
+if [[ "$OSTYPE" == "darwin"* ]] && [[ -d "$HOME/.dotnet" ]] && ! command -v dotnet &> /dev/null; then
+    export PATH="$HOME/.dotnet:$PATH"
+fi
+
 # Check if dotnet is installed and supports .NET 6+
 if ! command -v dotnet &> /dev/null; then
     echo ".NET SDK not found. Attempting to install..."
@@ -38,14 +43,19 @@ elif ! dotnet --list-sdks | grep -E "^[6-9]\." &> /dev/null; then
         echo "Detected macOS. Installing .NET 8 SDK..."
         
         if command -v brew &> /dev/null; then
-            # Use Homebrew if available
+            # Use Homebrew if available (supports both Intel and Apple Silicon)
             brew install --cask dotnet-sdk
         else
-            # Download and install manually
-            echo "Downloading .NET 8 SDK for macOS..."
-            curl -L https://download.microsoft.com/download/8/3/0/83066c35-4216-4ac6-a866-a46570de2c3c/dotnet-sdk-8.0.406-osx-x64.pkg -o /tmp/dotnet-sdk.pkg
-            sudo installer -pkg /tmp/dotnet-sdk.pkg -target /
-            rm /tmp/dotnet-sdk.pkg
+            # Use Microsoft's official installer script
+            echo "Downloading and running Microsoft's .NET installer script..."
+            curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+            
+            # Add dotnet to PATH for current session
+            export PATH="$HOME/.dotnet:$PATH"
+            
+            echo "Note: You may need to add ~/.dotnet to your PATH permanently:"
+            echo "echo 'export PATH=\"\$HOME/.dotnet:\$PATH\"' >> ~/.bashrc"
+            echo "echo 'export PATH=\"\$HOME/.dotnet:\$PATH\"' >> ~/.zshrc"
         fi
     else
         echo "Unsupported OS. Please install .NET SDK manually:"
@@ -54,6 +64,11 @@ elif ! dotnet --list-sdks | grep -E "^[6-9]\." &> /dev/null; then
     fi
     
     # Verify installation
+    # Make sure dotnet is in PATH (for cases where it was installed to ~/.dotnet)
+    if [[ "$OSTYPE" == "darwin"* ]] && [[ -d "$HOME/.dotnet" ]] && ! command -v dotnet &> /dev/null; then
+        export PATH="$HOME/.dotnet:$PATH"
+    fi
+    
     if ! command -v dotnet &> /dev/null || ! dotnet --list-sdks | grep -E "^[6-9]\." &> /dev/null; then
         echo "Failed to install compatible .NET SDK. Please install manually:"
         echo "https://dotnet.microsoft.com/download/dotnet"
